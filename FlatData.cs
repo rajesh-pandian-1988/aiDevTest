@@ -190,50 +190,44 @@ namespace aiCorporation.NewImproved
         public SalesAgentList ToSalesAgentList()
         {
             SalesAgentList salReturnSalesAgentList;
-            SalesAgentListBuilder salSalesAgentList;
-            SalesAgentBuilder saCurrentSalesAgent;
-            ClientBuilder cClient;
-            BankAccountBuilder baBankAccount;
+            List<SalesAgent> lsaSalesAgentList;
+            List<Client> lcClientList;
+            List<BankAccount> lbaBankAccountList;
+            IEnumerable<IGrouping<(string szSalesAgentName, string szSalesAgentEmailAddress), SalesAgentFileRecord>> lgsasafrSalesAgentSalesAgentFileRecordGroupList;
+            IEnumerable<IGrouping<(string szClientName, string szClientIdentifier), SalesAgentFileRecord>> lgcsafrClientSalesAgentFileRecordGroupList;
+            BankAccount baBankAccount;
+            Client cClient;
+            SalesAgent saSalesAgent;
 
-            salSalesAgentList = new SalesAgentListBuilder();
+            lsaSalesAgentList = new List<SalesAgent>();
 
-            foreach (SalesAgentFileRecord m_lsafrSalesAgentFileRecord in m_lsafrSalesAgentFileRecordList)
+            lgsasafrSalesAgentSalesAgentFileRecordGroupList = m_lsafrSalesAgentFileRecordList.GroupBy(lsafrSalesAgentFileRecord => (szSalesAgentName: lsafrSalesAgentFileRecord.SalesAgentName, szSalesAgentEmailAddress: lsafrSalesAgentFileRecord.SalesAgentEmailAddress));
+
+            foreach (var gsasafrSalesAgentSalesAgentFileRecordGroup in lgsasafrSalesAgentSalesAgentFileRecordGroupList)
             {
-                saCurrentSalesAgent = salSalesAgentList.GetSalesAgent(m_lsafrSalesAgentFileRecord.SalesAgentEmailAddress);
+                lcClientList = new List<Client>();
 
-                if (saCurrentSalesAgent == null)
+                lgcsafrClientSalesAgentFileRecordGroupList = gsasafrSalesAgentSalesAgentFileRecordGroup.GroupBy(lsafrSalesAgentFileRecord => (szClientName: lsafrSalesAgentFileRecord.ClientName, szClientIdentifier: lsafrSalesAgentFileRecord.ClientIdentifier));
+
+                foreach (var gcsafrClientSalesAgentFileRecordGroup in lgcsafrClientSalesAgentFileRecordGroupList)
                 {
-                    saCurrentSalesAgent = new SalesAgentBuilder();
-                    saCurrentSalesAgent.SalesAgentEmailAddress = m_lsafrSalesAgentFileRecord.SalesAgentEmailAddress;
-                    saCurrentSalesAgent.SalesAgentName = m_lsafrSalesAgentFileRecord.SalesAgentName;
-                    salSalesAgentList.Add(saCurrentSalesAgent);
+                    lbaBankAccountList = new List<BankAccount>();
+
+                    foreach (SalesAgentFileRecord safrSalesAgentFileRecord in gcsafrClientSalesAgentFileRecordGroup)
+                    {
+                        baBankAccount = new BankAccount(safrSalesAgentFileRecord.BankName, safrSalesAgentFileRecord.AccountNumber, safrSalesAgentFileRecord.SortCode, safrSalesAgentFileRecord.Currency);
+                        lbaBankAccountList.Add(baBankAccount);
+                    }
+
+                    cClient = new Client(gcsafrClientSalesAgentFileRecordGroup.Key.szClientName, gcsafrClientSalesAgentFileRecordGroup.Key.szClientIdentifier, lbaBankAccountList);
+                    lcClientList.Add(cClient);
                 }
 
-                cClient = saCurrentSalesAgent.ClientList.GetClient(m_lsafrSalesAgentFileRecord.ClientIdentifier);
-
-                if (cClient == null)
-                {
-                    cClient = new ClientBuilder();
-                    cClient.ClientIdentifier = m_lsafrSalesAgentFileRecord.ClientIdentifier;
-                    cClient.ClientName = m_lsafrSalesAgentFileRecord.ClientName;
-                    saCurrentSalesAgent.ClientList.Add(cClient);
-                }
-
-                baBankAccount = cClient.BankAccountList.GetBankAccount(m_lsafrSalesAgentFileRecord.BankName, m_lsafrSalesAgentFileRecord.AccountNumber, m_lsafrSalesAgentFileRecord.SortCode);
-
-                if (baBankAccount == null)
-                {
-                    baBankAccount = new BankAccountBuilder();
-                    baBankAccount.BankName = m_lsafrSalesAgentFileRecord.BankName;
-                    baBankAccount.AccountNumber = m_lsafrSalesAgentFileRecord.AccountNumber;
-                    baBankAccount.SortCode = m_lsafrSalesAgentFileRecord.SortCode;
-                    cClient.BankAccountList.Add(baBankAccount);
-                }
-
-                baBankAccount.Currency = m_lsafrSalesAgentFileRecord.Currency;
+                saSalesAgent = new SalesAgent(gsasafrSalesAgentSalesAgentFileRecordGroup.Key.szSalesAgentName, gsasafrSalesAgentSalesAgentFileRecordGroup.Key.szSalesAgentEmailAddress, lcClientList);
+                lsaSalesAgentList.Add(saSalesAgent);
             }
 
-            salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+            salReturnSalesAgentList = new SalesAgentList(lsaSalesAgentList);
 
             return (salReturnSalesAgentList);
         }

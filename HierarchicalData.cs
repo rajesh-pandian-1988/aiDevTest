@@ -381,7 +381,11 @@ namespace aiCorporation.NewImproved
 
         public SalesAgent ToSalesAgent()
         {
-            return new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
+            SalesAgent saSalesAgent;
+
+            saSalesAgent = new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
+
+            return (saSalesAgent);
         }
 
         public SalesAgentBuilder()
@@ -392,8 +396,6 @@ namespace aiCorporation.NewImproved
     public class SalesAgentListBuilder
     {
         private List<SalesAgentBuilder> m_lsaSalesAgentList;
-
-        private Dictionary<string, SalesAgentBuilder> m_dsaSalesAgentDictionary = new Dictionary<string, SalesAgentBuilder>();
 
         public int Count { get { return (m_lsaSalesAgentList.Count); } }
 
@@ -432,20 +434,11 @@ namespace aiCorporation.NewImproved
             }
         }
 
-        public SalesAgentBuilder GetSalesAgent(string szSalesAgentEmailAddress)
-        {
-            m_dsaSalesAgentDictionary.TryGetValue(szSalesAgentEmailAddress, out SalesAgentBuilder saSalesAgent);
-
-            return (saSalesAgent);
-        }
-
         public void Add(SalesAgentBuilder saSalesAgent)
         {
             if (saSalesAgent != null)
             {
                 m_lsaSalesAgentList.Add(saSalesAgent);
-
-                m_dsaSalesAgentDictionary.Add(saSalesAgent.SalesAgentEmailAddress, saSalesAgent);
             }
         }
 
@@ -456,7 +449,17 @@ namespace aiCorporation.NewImproved
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
-            return m_lsaSalesAgentList.AsParallel().Select(m_lsaSalesAgent => m_lsaSalesAgent.ToSalesAgent()).ToList();
+            List<SalesAgent> lsaSalesAgentList = null;
+            int nCount = 0;
+
+            lsaSalesAgentList = new List<SalesAgent>();
+
+            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            {
+                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
+            }
+
+            return (lsaSalesAgentList);
         }
     }
 
@@ -480,7 +483,11 @@ namespace aiCorporation.NewImproved
 
         public Client ToClient()
         {
-            return new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
+            Client cClient;
+
+            cClient = new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
+
+            return (cClient);
         }
 
         public ClientBuilder()
@@ -490,9 +497,7 @@ namespace aiCorporation.NewImproved
     }
     public class ClientListBuilder
     {
-        private readonly List<ClientBuilder> m_lcClientList;
-
-        private readonly Dictionary<string, ClientBuilder> m_dcClientDictionary = new Dictionary<string, ClientBuilder>();
+        private List<ClientBuilder> m_lcClientList;
 
         public int Count { get { return (m_lcClientList.Count); } }
 
@@ -531,20 +536,11 @@ namespace aiCorporation.NewImproved
             }
         }
 
-        public ClientBuilder GetClient(string szClientIdentifier)
-        {
-            m_dcClientDictionary.TryGetValue(szClientIdentifier, out ClientBuilder cClient);
-            return (cClient);
-        }
-
-
         public void Add(ClientBuilder cClient)
         {
             if (cClient != null)
             {
                 m_lcClientList.Add(cClient);
-
-                m_dcClientDictionary.Add(cClient.ClientIdentifier, cClient);
             }
         }
 
@@ -555,9 +551,12 @@ namespace aiCorporation.NewImproved
 
         public List<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = new List<Client>();
+            List<Client> lcClientList = null;
+            int nCount = 0;
 
-            for (int nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            lcClientList = new List<Client>();
+
+            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
             {
                 lcClientList.Add(m_lcClientList[nCount].ToClient());
             }
@@ -596,7 +595,11 @@ namespace aiCorporation.NewImproved
 
         public BankAccount ToBankAccount()
         {
-            return new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
+            BankAccount baBankAccount;
+
+            baBankAccount = new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
+
+            return (baBankAccount);
         }
     }
     public class BankAccountListBuilder
@@ -620,7 +623,6 @@ namespace aiCorporation.NewImproved
 
         public BankAccountBuilder GetBankAccount(string szBankName, string szAccountNumber, string szSortCode)
         {
-
             int nCount = 0;
             bool boFound = false;
             BankAccountBuilder baBankAccount = null;
@@ -637,10 +639,8 @@ namespace aiCorporation.NewImproved
                 }
                 nCount++;
             }
-
             return (baBankAccount);
         }
-
 
         public void Add(BankAccountBuilder baBankAccount)
         {
@@ -657,9 +657,12 @@ namespace aiCorporation.NewImproved
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = new List<BankAccount>();
+            List<BankAccount> lbaBankAccountList = null;
+            int nCount = 0;
 
-            for (int nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
+            lbaBankAccountList = new List<BankAccount>();
+
+            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
             {
                 lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
             }
